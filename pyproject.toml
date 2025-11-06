@@ -34,7 +34,7 @@ dev = [
     "pytest-asyncio>=1.2.0,<2",
     "pytest-cov>=4.1.0,<5",
     "types-aiofiles>=25.1.0.20251011,<26",
-    "group-terminal<=0.0.2",
+    "group-terminal>=0.0.2,<0.1",
 ]
 
 [build-system]
