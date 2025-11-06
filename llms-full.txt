@@ -1,4 +1,4 @@
-# group-sense
+# Group Sense
 
 > Multi-party conversation intelligence for AI agents
 
