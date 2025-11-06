@@ -1,0 +1,12 @@
+__pycache__
+.DS_Store
+.playwright-mcp/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.vscode/
+.venv/
+.data/
+site/
+.env
+sandbox*

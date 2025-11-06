@@ -1,0 +1,77 @@
+[
+    {
+      "content": "Hey everyone! How's it going?",
+      "sender": "user_1",
+      "receiver": null
+    },
+    {
+      "content": "Pretty good! Just finished a project at work",
+      "sender": "user_2",
+      "receiver": null
+    },
+    {
+      "content": "did you see the game last night?",
+      "sender": "user_3",
+      "receiver": "user_1"
+    },
+    {
+      "content": "yeah it was incredible! That last-minute goal!",
+      "sender": "user_1",
+      "receiver": "user_3"
+    },
+    {
+      "content": "Does anyone know how to implement binary search in Python?",
+      "sender": "user_2",
+      "receiver": null
+    },
+    {
+      "content": "Here's how to implement binary search in Python:\n\n```python\ndef binary_search(arr, target):\n    left, right = 0, len(arr) - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if arr[mid] == target:\n            return mid\n        elif arr[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return -1\n```",
+      "sender": "system",
+      "receiver": "user_2"
+    },
+    {
+      "content": "Could you explain the time complexity of this approach?",
+      "sender": "user_2",
+      "receiver": null
+    },
+    {
+      "content": "The time complexity is O(log n) because we divide the search space in half with each iteration...",
+      "sender": "system",
+      "receiver": "user_2"
+    },
+    {
+      "content": "what's the best Italian restaurant near downtown?",
+      "sender": "user_4",
+      "receiver": "user_1"
+    },
+    {
+      "content": "sorry, I'm not familiar with restaurants in that area",
+      "sender": "user_1",
+      "receiver": null
+    },
+    {
+      "content": "There is a tech meetup tomorrow",
+      "sender": "user_3",
+      "receiver": null
+    },
+    {
+      "content": "I might go if I finish my deadline",
+      "sender": "user_2",
+      "receiver": null
+    },
+    {
+      "content": "let me know! We could grab coffee before",
+      "sender": "user_4",
+      "receiver": "user_2"
+    },
+    {
+      "content": "do you know what time the meetup starts?",
+      "sender": "user_1",
+      "receiver": "user_3"
+    },
+    {
+      "content": "I think it's at 6pm at the usual place",
+      "sender": "user_3",
+      "receiver": "user_1"
+    }
+  ]

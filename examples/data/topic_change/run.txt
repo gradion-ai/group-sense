@@ -1,0 +1,143 @@
+Message 0 (user_1):
+  Hey everyone! How was your weekend?
+
+Message 1 (user_2):
+  Pretty good! Went hiking with my family. Weather was perfect.
+
+Message 2 (user_3):
+  Nice! I mostly stayed in and caught up on some reading.
+
+Message 3 (user_4):
+  I went to that new brewery downtown. Highly recommend it!
+
+Message 4 (user_1):
+  So about the Q4 project deadline... are we still on track?
+
+Message 5 (user_2):
+  I think we're in good shape. The API integration is about 80% complete.
+
+Message 6 (user_3):
+  That's great news. What about the frontend work?
+
+Message 7 (user_4):
+  Frontend is done except for the dashboard widgets. Should finish those by Wednesday.
+
+Message 8 (user_1 -> user_4):
+  user_4, do you need any help with the widgets? I can jump in if needed.
+
+================================================================================
+<downstream-query>
+Please summarize the following topic from the group conversation:
+
+Topic: "Weekend Plans" (messages 0-3)
+Summarize the discussion about people sharing their weekend activities.
+</downstream-query>
+================================================================================
+
+Message 9 (user_4 -> user_1):
+  Thanks! I might take you up on that. Let me see how far I get today.
+
+Message 10 (user_2):
+  We should also schedule a testing session before the release.
+
+Message 11 (user_3):
+  Good idea. How about Friday afternoon?
+
+Message 12 (user_1):
+  Friday works for me.
+
+Message 13 (user_3):
+  Anyone hungry? Thinking about ordering lunch.
+
+Message 14 (user_4):
+  Yeah! What are you thinking?
+
+Message 15 (user_3):
+  Maybe Thai or Mexican? Open to suggestions.
+
+Message 16 (user_1):
+  There's a good taco place that delivers - Taco Fiesta. Their burritos are huge.
+
+Message 17 (user_2 -> user_3):
+  I'm down for tacos! user_3, want to coordinate an order?
+
+================================================================================
+<downstream-query>
+Please summarize the following topic from the group conversation:
+
+Topic: "Q4 Project Status" (messages 4-12)
+Summarize the discussion about the Q4 project deadline, progress on API integration and frontend work, and scheduling a testing session.
+</downstream-query>
+================================================================================
+
+Message 18 (user_3):
+  Sure, I'll create a shared cart and send the link.
+
+Message 19 (user_4):
+  Perfect, thanks!
+
+Message 20 (user_2):
+  Quick question - can someone review my pull request when you get a chance? It's the authentication refactor.
+
+Message 21 (user_1):
+  I can take a look. What's the PR number?
+
+Message 22 (user_2):
+  It's PR #247. Main changes are in the auth middleware and user session handling.
+
+Message 23 (user_1 -> user_2):
+  user_2, I'm seeing some issues with the token refresh logic. Are you using the new JWT library?
+
+================================================================================
+<downstream-query>
+Please summarize the following topic from the group conversation:
+
+Topic: "Ordering Lunch" (messages 13-19)
+Summarize the discussion about the group deciding on and coordinating an order for lunch.
+</downstream-query>
+================================================================================
+
+Message 24 (user_2 -> user_1):
+  Yes, I upgraded to v3.2. What issues are you seeing?
+
+Message 25 (user_1):
+  The refresh tokens aren't being validated correctly. They're expiring too early.
+
+Message 26 (user_2):
+  Hmm, I think I might have misconfigured the expiration time. Let me check the docs.
+
+Message 27 (user_4):
+  I had the same issue last month. You need to set the refresh_expiry parameter separately from the access_expiry.
+
+Message 28 (user_2 -> user_4):
+  user_4, do you remember what values you used?
+
+Message 29 (user_4 -> user_2):
+  I set access_expiry to 15 minutes and refresh_expiry to 7 days. Worked perfectly after that.
+
+Message 30 (user_2):
+  That makes sense. I'll update the config and push a new commit. Thanks!
+
+Message 31 (user_1):
+  Also, you might want to add some unit tests for the token refresh flow. I noticed there aren't any in the PR.
+
+Message 32 (user_2):
+  Good catch. I'll add those before merging.
+
+Message 33 (user_3):
+  By the way, has anyone seen the new office renovation plans? They're putting in a coffee bar!
+
+Message 34 (user_4):
+  Really? That's awesome! When is that happening?
+
+Message 35 (user_3):
+  I think construction starts next month. They sent an email about it last week.
+
+================================================================================
+<downstream-query>
+Please summarize the following topic from the group conversation:
+
+Topic: "Pull Request Review (Authentication Refactor)" (messages 20-32)
+Summarize the discussion about a pull request for authentication refactor, including token refresh logic issues, configuration, and unit tests.
+</downstream-query>
+================================================================================

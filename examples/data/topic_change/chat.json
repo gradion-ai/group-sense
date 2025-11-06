@@ -1,0 +1,182 @@
+[
+  {
+    "content": "Hey everyone! How was your weekend?",
+    "sender": "user_1",
+    "receiver": null
+  },
+  {
+    "content": "Pretty good! Went hiking with my family. Weather was perfect.",
+    "sender": "user_2",
+    "receiver": null
+  },
+  {
+    "content": "Nice! I mostly stayed in and caught up on some reading.",
+    "sender": "user_3",
+    "receiver": null
+  },
+  {
+    "content": "I went to that new brewery downtown. Highly recommend it!",
+    "sender": "user_4",
+    "receiver": null
+  },
+  {
+    "content": "So about the Q4 project deadline... are we still on track?",
+    "sender": "user_1",
+    "receiver": null
+  },
+  {
+    "content": "I think we're in good shape. The API integration is about 80% complete.",
+    "sender": "user_2",
+    "receiver": null
+  },
+  {
+    "content": "That's great news. What about the frontend work?",
+    "sender": "user_3",
+    "receiver": null
+  },
+  {
+    "content": "Frontend is done except for the dashboard widgets. Should finish those by Wednesday.",
+    "sender": "user_4",
+    "receiver": null
+  },
+  {
+    "content": "user_4, do you need any help with the widgets? I can jump in if needed.",
+    "sender": "user_1",
+    "receiver": "user_4"
+  },
+  {
+    "content": "Thanks! I might take you up on that. Let me see how far I get today.",
+    "sender": "user_4",
+    "receiver": "user_1"
+  },
+  {
+    "content": "We should also schedule a testing session before the release.",
+    "sender": "user_2",
+    "receiver": null
+  },
+  {
+    "content": "Good idea. How about Friday afternoon?",
+    "sender": "user_3",
+    "receiver": null
+  },
+  {
+    "content": "Friday works for me.",
+    "sender": "user_1",
+    "receiver": null
+  },
+  {
+    "content": "Anyone hungry? Thinking about ordering lunch.",
+    "sender": "user_3",
+    "receiver": null
+  },
+  {
+    "content": "Yeah! What are you thinking?",
+    "sender": "user_4",
+    "receiver": null
+  },
+  {
+    "content": "Maybe Thai or Mexican? Open to suggestions.",
+    "sender": "user_3",
+    "receiver": null
+  },
+  {
+    "content": "There's a good taco place that delivers - Taco Fiesta. Their burritos are huge.",
+    "sender": "user_1",
+    "receiver": null
+  },
+  {
+    "content": "I'm down for tacos! user_3, want to coordinate an order?",
+    "sender": "user_2",
+    "receiver": "user_3"
+  },
+  {
+    "content": "Sure, I'll create a shared cart and send the link.",
+    "sender": "user_3",
+    "receiver": null
+  },
+  {
+    "content": "Perfect, thanks!",
+    "sender": "user_4",
+    "receiver": null
+  },
+  {
+    "content": "Quick question - can someone review my pull request when you get a chance? It's the authentication refactor.",
+    "sender": "user_2",
+    "receiver": null
+  },
+  {
+    "content": "I can take a look. What's the PR number?",
+    "sender": "user_1",
+    "receiver": null
+  },
+  {
+    "content": "It's PR #247. Main changes are in the auth middleware and user session handling.",
+    "sender": "user_2",
+    "receiver": null
+  },
+  {
+    "content": "user_2, I'm seeing some issues with the token refresh logic. Are you using the new JWT library?",
+    "sender": "user_1",
+    "receiver": "user_2"
+  },
+  {
+    "content": "Yes, I upgraded to v3.2. What issues are you seeing?",
+    "sender": "user_2",
+    "receiver": "user_1"
+  },
+  {
+    "content": "The refresh tokens aren't being validated correctly. They're expiring too early.",
+    "sender": "user_1",
+    "receiver": null
+  },
+  {
+    "content": "Hmm, I think I might have misconfigured the expiration time. Let me check the docs.",
+    "sender": "user_2",
+    "receiver": null
+  },
+  {
+    "content": "I had the same issue last month. You need to set the refresh_expiry parameter separately from the access_expiry.",
+    "sender": "user_4",
+    "receiver": null
+  },
+  {
+    "content": "user_4, do you remember what values you used?",
+    "sender": "user_2",
+    "receiver": "user_4"
+  },
+  {
+    "content": "I set access_expiry to 15 minutes and refresh_expiry to 7 days. Worked perfectly after that.",
+    "sender": "user_4",
+    "receiver": "user_2"
+  },
+  {
+    "content": "That makes sense. I'll update the config and push a new commit. Thanks!",
+    "sender": "user_2",
+    "receiver": null
+  },
+  {
+    "content": "Also, you might want to add some unit tests for the token refresh flow. I noticed there aren't any in the PR.",
+    "sender": "user_1",
+    "receiver": null
+  },
+  {
+    "content": "Good catch. I'll add those before merging.",
+    "sender": "user_2",
+    "receiver": null
+  },
+  {
+    "content": "By the way, has anyone seen the new office renovation plans? They're putting in a coffee bar!",
+    "sender": "user_3",
+    "receiver": null
+  },
+  {
+    "content": "Really? That's awesome! When is that happening?",
+    "sender": "user_4",
+    "receiver": null
+  },
+  {
+    "content": "I think construction starts next month. They sent an email about it last week.",
+    "sender": "user_3",
+    "receiver": null
+  }
+]

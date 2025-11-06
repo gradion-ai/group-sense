@@ -1,0 +1,85 @@
+Message 0 (user_1):
+  Hey everyone! How's it going?
+
+Message 1 (user_2):
+  Pretty good! Just finished a project at work
+
+Message 2 (user_3 -> user_1):
+  @user_1 did you see the game last night?
+
+Message 3 (user_1 -> user_3):
+  @user_3 yeah it was incredible! That last-minute goal!
+
+Message 4 (user_2):
+  Does anyone know how to implement binary search in Python?
+
+================================================================================
+<downstream-query>
+How do I implement binary search in Python?
+</downstream-query>
+<response-receiver>
+user_2
+</response-receiver>
+================================================================================
+
+Message 5 (system -> user_2):
+  Here's how to implement binary search in Python:
+
+```python
+def binary_search(arr, target):
+    left, right = 0, len(arr) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1
+```
+
+Message 6 (user_2):
+  Could you explain the time complexity of this approach?
+
+================================================================================
+<downstream-query>
+Could you explain the time complexity of this approach?
+</downstream-query>
+<response-receiver>
+user_2
+</response-receiver>
+================================================================================
+
+Message 7 (system -> user_2):
+  The time complexity is O(log n) because we divide the search space in half with each iteration...
+
+Message 8 (user_4 -> user_1):
+  @user_1 what's the best Italian restaurant near downtown?
+
+Message 9 (user_1 -> user_4):
+  @user_4 sorry, I'm not familiar with restaurants in that area
+
+================================================================================
+<downstream-query>
+What's the best Italian restaurant near downtown?
+</downstream-query>
+<response-receiver>
+user_4
+</response-receiver>
+================================================================================
+
+Message 10 (user_3):
+  There is a tech meetup tomorrow
+
+Message 11 (user_2):
+  I might go if I finish my deadline
+
+Message 12 (user_4 -> user_2):
+  @user_2 let me know! We could grab coffee before
+
+Message 13 (user_1 -> user_3):
+  @user_3 do you know what time the meetup starts?
+
+Message 14 (user_3 -> user_1):
+  @user_1 I think it's at 6pm at the usual place

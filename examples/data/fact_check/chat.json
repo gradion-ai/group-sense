@@ -1,0 +1,67 @@
+[
+  {
+    "content": "Hey everyone! How's it going?",
+    "sender": "user_1",
+    "receiver": null
+  },
+  {
+    "content": "Pretty good! Just finished a big project.",
+    "sender": "user_2",
+    "receiver": null
+  },
+  {
+    "content": "Nice work! By the way, the team meeting is scheduled for 2pm tomorrow.",
+    "sender": "user_3",
+    "receiver": null
+  },
+  {
+    "content": "Awesome, I'll be there. Also, the client proposal deadline is next Friday, March 15th.",
+    "sender": "user_1",
+    "receiver": null
+  },
+  {
+    "content": "Got it, I'll make sure everything is ready by then.",
+    "sender": "user_2",
+    "receiver": null
+  },
+  {
+    "content": "Sounds good! Looking forward to wrapping this up.",
+    "sender": "user_3",
+    "receiver": null
+  },
+  {
+    "content": "Quick question - has anyone confirmed the budget for the new office space?",
+    "sender": "user_1",
+    "receiver": null
+  },
+  {
+    "content": "Hey, quick reminder - the team meeting tomorrow is at 3pm, not 2pm. Location is the main conference room.",
+    "sender": "user_4",
+    "receiver": null
+  },
+  {
+    "content": "Thanks for the heads up! I'll update my calendar.",
+    "sender": "user_2",
+    "receiver": null
+  },
+  {
+    "content": "No problem! Looking forward to it.",
+    "sender": "user_4",
+    "receiver": null
+  },
+  {
+    "content": "Alright, I'm heading out now. Need to finish my part for the March 22nd deadline.",
+    "sender": "user_3",
+    "receiver": null
+  },
+  {
+    "content": "Bye!",
+    "sender": "user_2",
+    "receiver": null
+  },
+  {
+    "content": "Wait, are you sure about that deadline date?",
+    "sender": "user_1",
+    "receiver": "user_3"
+  }
+]

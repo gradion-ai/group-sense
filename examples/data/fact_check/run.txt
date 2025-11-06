@@ -1,0 +1,50 @@
+Message 0 (user_1):
+  Hey everyone! How's it going?
+
+Message 1 (user_2):
+  Pretty good! Just finished a big project.
+
+Message 2 (user_3):
+  Nice work! By the way, the team meeting is scheduled for 2pm tomorrow.
+
+Message 3 (user_1):
+  Awesome, I'll be there. Also, the client proposal deadline is next Friday, March 15th.
+
+Message 4 (user_2):
+  Got it, I'll make sure everything is ready by then.
+
+Message 5 (user_3):
+  Sounds good! Looking forward to wrapping this up.
+
+Message 6 (user_1):
+  Quick question - has anyone confirmed the budget for the new office space?
+
+Message 7 (user_4):
+  Hey, quick reminder - the team meeting tomorrow is at 3pm, not 2pm. Location is the main conference room.
+
+================================================================================
+<downstream-query>
+These statements contradict each other: 'the team meeting is scheduled for 2pm tomorrow.' versus 'the team meeting tomorrow is at 3pm, not 2pm.'. Please fact-check and determine which is accurate.
+</downstream-query>
+================================================================================
+
+Message 8 (user_2):
+  Thanks for the heads up! I'll update my calendar.
+
+Message 9 (user_4):
+  No problem! Looking forward to it.
+
+Message 10 (user_3):
+  Alright, I'm heading out now. Need to finish my part for the March 22nd deadline.
+
+================================================================================
+<downstream-query>
+These statements contradict each other: 'the client proposal deadline is next Friday, March 15th' versus 'Need to finish my part for the March 22nd deadline'. Please fact-check and determine which is accurate.
+</downstream-query>
+================================================================================
+
+Message 11 (user_2):
+  Bye!
+
+Message 12 (user_1 -> user_3):
+  Wait, are you sure about that deadline date?
