@@ -14,7 +14,7 @@ The library provides three core capabilities that make group chat AI assistance 
 - [Integration](https://gradion-ai.github.io/group-sense/integration/): Integrating Group Sense into applications
 - [API Documentation](https://gradion-ai.github.io/group-sense/api/message/): Complete API reference
 
-## LLM-Readable Documentation
+## LLM-optimized documentation
 
 For AI assistants and LLM-based tools, optimized documentation formats are available:
 

@@ -11,7 +11,7 @@ The library provides three core capabilities that make group chat AI assistance 
 3. Explore [usage examples](examples.md) for different engagement patterns
 4. [Integrate](integration.md) Group Sense into your application
 
-## LLM-optimized Documentation
+## LLM-optimized documentation
 
 - [llms.txt](/group-sense/llms.txt)
 - [llms-full.txt](/group-sense/llms-full.txt)
