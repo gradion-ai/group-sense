@@ -24,4 +24,3 @@ For AI assistants and LLM-based tools, optimized documentation formats are avail
 ## Development
 
 For development setup, see [DEVELOPMENT.md](DEVELOPMENT.md)
-```

@@ -13,5 +13,5 @@ The library provides three core capabilities that make group chat AI assistance 
 
 ## LLM-optimized Documentation
 
-- [llms.txt](/llms.txt)
-- [llms-full.txt](/llms-full.txt)
+- [llms.txt](/group-sense/llms.txt)
+- [llms-full.txt](/group-sense/llms-full.txt)
