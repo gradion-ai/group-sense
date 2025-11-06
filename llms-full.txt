@@ -1,0 +1,784 @@
+# group-sense
+
+> Multi-party conversation intelligence for AI agents
+
+The `group_sense` package is a library for detecting patterns in group chat message streams
+and transforming them into self-contained queries for downstream AI systems. This enables
+existing single-user AI agents to participate in group conversations based on configurable
+criteria, without requiring training on multi-party conversations.
+
+
+# User Guide
+
+# Introduction
+
+Group Sense detects patterns in group chat message streams and transforms them into self-contained queries for downstream AI systems. While single-user AI assistants excel at responding to direct queries, they struggle with multi-party conversations where relevant information emerges from complex exchanges between multiple participants. Group Sense solves this by acting as an intelligent adapter that monitors group conversations, identifies meaningful patterns, and reformulates them into queries that existing AI assistants can process, enabling proactive and "overhearing" AI assistance without requiring the underlying assistant to understand group dynamics or multi-party dialogue structure.
+
+The library provides three core capabilities that make group chat AI assistance practical and flexible. First, it detects conversation patterns and transforms multi-party dialogue into self-contained queries that preserve essential context while removing conversational complexity. Second, engagement criteria are defined in natural language rather than code, allowing you to specify when and how the AI should participate using clear, human-readable rules. Third, Group Sense works as a non-invasive adapter for any existing single-user AI assistant or agent: no modification, retraining, or specialized models required. This architecture lets you add group chat capabilities to AI systems you already use, whether for collaborative decision-making, team coordination, or ambient assistance scenarios.
+
+## Next steps
+
+1. [Install](installation/) the library and configure API keys
+1. Learn the [core concepts](basics/) and reasoner types
+1. Explore [usage examples](examples/) for different engagement patterns
+1. [Integrate](integration/) Group Sense into your application
+
+## LLM-optimized Documentation
+
+- [llms.txt](/llms.txt)
+- [llms-full.txt](/llms-full.txt)
+
+# Installation
+
+## Python Package
+
+```bash
+pip install group-sense
+```
+
+## Development Setup
+
+For development setup and contributing guidelines, see [DEVELOPMENT.md](https://github.com/gradion-ai/group-sense/blob/main/DEVELOPMENT.md).
+
+## API Keys
+
+Group Sense uses Google Gemini models by default. Set your API key:
+
+```bash
+export GOOGLE_API_KEY="your-api-key"
+```
+
+The library supports any [pydantic-ai](https://ai.pydantic.dev/) compatible model. Pass a custom model to reasoner constructors using the `model` parameter.
+
+# Basics
+
+Group Sense processes messages through reasoners that analyze incoming group chat messages and decide whether to ignore them or delegate them to an AI assistant. Each message has a sender (the user who wrote it) and content. When a reasoner decides to delegate, it generates a self-contained query suitable for a single-user AI assistant and optionally specifies which user should receive the response.
+
+All reasoners see the complete group chat context - every message from every user. The difference between reasoner types is how they maintain their internal reasoning state across messages.
+
+## DefaultGroupReasoner
+
+DefaultGroupReasoner uses a single AI agent with shared reasoning state. All messages are processed through one conversation history, providing a unified perspective across all users.
+
+```python
+from group_sense import Decision, DefaultGroupReasoner, Message
+
+
+# Load system prompt from file
+prompt_path = Path("examples", "prompts", "default", "fact_check.md")
+system_prompt = prompt_path.read_text()
+
+# Create reasoner
+reasoner = DefaultGroupReasoner(system_prompt=system_prompt)
+
+# Process group chat messages
+logger.info("Processing first batch of messages...")
+response = await reasoner.process(
+    [
+        Message(content="The meeting is tomorrow at 2pm.", sender="alice"),
+        Message(content="Thanks for the reminder!", sender="charlie"),
+    ]
+)
+logger.info(f"Decision: {response.decision}")
+# Decision: IGNORE (no contradiction detected)
+
+logger.info("\nProcessing message with contradiction...")
+response = await reasoner.process(
+    [
+        Message(content="See you at 3pm tomorrow.", sender="bob"),
+    ]
+)
+logger.info(f"Decision: {response.decision}")
+if response.decision == Decision.DELEGATE:
+    logger.info(f"Query: {response.query}")
+    logger.info("Group dialogue transformed into self-contained verification query")
+```
+
+The reasoner maintains state across `process()` calls, enabling context-aware decisions on subsequent message batches. A complete runnable example is available at [examples/basics/default_reasoner.py](https://github.com/gradion-ai/group-sense/blob/main/examples/basics/default_reasoner.py).
+
+## ConcurrentGroupReasoner
+
+ConcurrentGroupReasoner creates a separate AI agent for each user, each maintaining its own independent reasoning state. While all agents see the complete group chat context, each maintains a separate conversation history. Messages from different users can be processed concurrently, while messages from the same user are processed sequentially.
+
+```python
+from group_sense import ConcurrentGroupReasoner, Decision, DefaultGroupReasonerFactory, Message
+
+
+# Load system prompt template with {owner} placeholder
+template_path = Path("examples", "prompts", "concurrent", "fact_check.md")
+template = template_path.read_text()
+
+# Create factory and reasoner
+factory = DefaultGroupReasonerFactory(system_prompt_template=template)
+reasoner = ConcurrentGroupReasoner(factory=factory)
+
+# Earlier messages establishing context
+logger.info("Processing alice's message establishing context...")
+await reasoner.process(Message(content="The client meeting is on Thursday.", sender="alice"))
+
+# Process new messages from different users concurrently
+logger.info("\nProcessing messages from charlie and bob concurrently...")
+f1 = reasoner.process(Message(content="Sounds good!", sender="charlie"))
+f2 = reasoner.process(Message(content="I'll prepare slides for the Friday meeting.", sender="bob"))
+
+response1 = await f1
+logger.info(f"Charlie - Decision: {response1.decision}")
+
+response2 = await f2
+logger.info(f"Bob - Decision: {response2.decision}")
+if response2.decision == Decision.DELEGATE:
+    logger.info(f"Bob - Query: {response2.query}")
+    logger.info("Bob's reasoner detects contradiction using full group context")
+```
+
+Each user gets their own AI agent customized with their user ID via DefaultGroupReasonerFactory. While all agents see the same group chat messages, each maintains its own conversation history for reasoning. A complete runnable example is available at [examples/basics/concurrent_reasoner.py](https://github.com/gradion-ai/group-sense/blob/main/examples/basics/concurrent_reasoner.py).
+
+# Examples
+
+The following examples demonstrate different engagement patterns using simplified system prompts. For more elaborate prompts with detailed instructions, as used in [Basics](../basics/), see [examples/prompts/](https://github.com/gradion-ai/group-sense/tree/main/examples/prompts/).
+
+## Answer Assistance
+
+In group conversations, users sometimes cannot answer questions addressed to them. The reasoner detects this pattern and delegates the original question to the AI, setting the receiver to the original questioner. A complete runnable example is available at [examples/example_1.py](https://github.com/gradion-ai/group-sense/blob/main/examples/example_1.py).
+
+```python
+from group_sense import Decision, DefaultGroupReasoner, Message
+
+
+# Short prompt for delegation when users can't answer
+system_prompt = (
+    "Delegate when a user indicates they can't answer a question "
+    "addressed to them. Transform to first-person query and set receiver to the question "
+    "sender. Ignore everything else."
+)
+
+# Create the reasoner with the system prompt
+reasoner = DefaultGroupReasoner(system_prompt=system_prompt)
+
+# Process alice's question to bob - should be ignored
+logger.info("Processing alice's question to bob...")
+response1 = await reasoner.process(
+    [
+        Message(
+            content="We need to add rate limiting to our API. Do you know how to implement that?",
+            sender="alice",
+            receiver="bob",
+        ),
+    ]
+)
+logger.info(f"Decision: {response1.decision}")
+
+# bob can't answer - should be delegated
+logger.info("Processing bob's message...")
+response2 = await reasoner.process(
+    [
+        Message(content="I'm not sure, let me check.", sender="bob"),
+    ]
+)
+logger.info(f"Decision: {response2.decision}")
+
+if response2.decision == Decision.DELEGATE:
+    logger.info(f"Query: {response2.query}")
+    logger.info(f"Respond to: {response2.receiver}")
+    logger.info("The AI will research and respond to alice!")
+else:
+    logger.info("No delegation triggered")
+```
+
+This example uses DefaultGroupReasoner to process messages and make delegation decisions based on the configured system prompt. The Message class represents individual chat messages, and Decision is an enum indicating whether to delegate or ignore.
+
+## Fact Checking
+
+When participants provide conflicting information about facts, dates, or events, the reasoner detects the contradiction and generates verification queries without requiring explicit user requests. A complete runnable example is available at [examples/example_2.py](https://github.com/gradion-ai/group-sense/blob/main/examples/example_2.py).
+
+```python
+from group_sense import Decision, DefaultGroupReasoner, Message
+
+
+# Short custom prompt for fact-checking engagement
+system_prompt = (
+    "Delegate when you detect contradictory information "
+    "about facts, dates, or events. Generate a query asking for verification. "
+    "Ignore everything else. Always set receiver to null."
+)
+
+# Create the reasoner with the fact-checking prompt
+reasoner = DefaultGroupReasoner(system_prompt=system_prompt)
+
+# Process messages with contradictory information
+logger.info("Processing messages with contradictory meeting times...")
+response = await reasoner.process(
+    [
+        Message(content="The meeting is tomorrow at 2pm.", sender="alice"),
+        Message(content="Thank you for the reminder, I'll be there.", sender="charlie"),
+        Message(content="I'll be there too, see you at 3pm.", sender="bob"),
+    ]
+)
+
+# Check the decision and display results
+logger.info(f"Decision: {response.decision}")
+
+if response.decision == Decision.DELEGATE:
+    logger.info(f"Query generated: {response.query}")
+    logger.info(f"Send to: {response.receiver}")
+    logger.info("The reasoner detected a contradiction and wants verification!")
+else:
+    logger.info("No delegation - no contradiction detected")
+```
+
+This example demonstrates how DefaultGroupReasoner can proactively identify patterns in group conversations and generate verification queries without explicit requests from users.
+
+## General Assistance
+
+Provides assistance by handling direct questions and follow-up queries. Uses ConcurrentGroupReasoner so that reasoning runs for different users concurrently. This example is similar to direct assistant usage, but the reasoner handles all group context complexity: transforming group conversations into self-contained queries and managing per-user reasoning state. A complete runnable example is available at [examples/example_3.py](https://github.com/gradion-ai/group-sense/blob/main/examples/example_3.py).
+
+```python
+from group_sense import ConcurrentGroupReasoner, Decision, DefaultGroupReasonerFactory, Message
+
+
+# Template with {owner} placeholder for per-sender customization
+template = (
+    "You are assisting {owner} in a group chat. "
+    "Delegate when {owner} asks questions or continues conversations with the system. "
+    "Make delegate queries self-contained. Ignore everything else."
+)
+
+factory = DefaultGroupReasonerFactory(system_prompt_template=template)
+reasoner = ConcurrentGroupReasoner(factory=factory)
+
+# Process alice's first message
+# Expected: DELEGATE with query "What's the weather like in Vienna today?"
+logger.info("Processing alice's first message...")
+f1 = reasoner.process(Message(content="What's the weather like in Vienna today?", sender="alice"))
+response1 = await f1
+logger.info(f"Alice message 1 - Decision: {response1.decision}")
+if response1.decision == Decision.DELEGATE:
+    logger.info(f"  Query: {response1.query}")
+
+# Add AI response back to the shared context
+logger.info("Adding system response to shared context...")
+reasoner.append(Message(content="It's sunny in Vienna today.", sender="system"))
+logger.info("System message added - available to all user contexts")
+
+# Process bob and alice's messages concurrently
+# Bob expected: IGNORE (casual statement)
+# Alice expected: DELEGATE with self-contained query "What's the weather like in Vienna tomorrow?"
+logger.info("\nProcessing bob and alice's messages concurrently...")
+f2 = reasoner.process(Message(content="I'm feeling good!", sender="bob"))
+f3 = reasoner.process(Message(content="and tomorrow?", sender="alice"))
+
+response2 = await f2
+logger.info(f"Bob message - Decision: {response2.decision}")
+if response2.decision == Decision.DELEGATE:
+    logger.info(f"  Query: {response2.query}")
+
+response3 = await f3
+logger.info(f"Alice message 2 - Decision: {response3.decision}")
+if response3.decision == Decision.DELEGATE:
+    logger.info(f"  Query: {response3.query}")
+    logger.info("  Notice: Follow-up to both alice's first message AND the system response!")
+```
+
+This example uses ConcurrentGroupReasoner with DefaultGroupReasonerFactory to create per-user reasoning instances. Each user gets their own reasoner customized via the `{owner}` placeholder in the system prompt template.
+
+# Integrating into Applications
+
+The code example below demonstrates how to integrate Group Sense as an adapter between a group chat system and an existing single-user AI assistant. The pattern shows key integration steps: setting up the concurrent reasoner with custom prompts, handling incoming group messages, processing triage decisions, and feeding assistant responses back into the shared conversation context. A complete running implementation using [Group Terminal](https://gradion-ai.github.io/group-terminal/) as a group chat system is available at [examples/chat/application.py](https://github.com/gradion-ai/group-sense/blob/main/examples/chat/application.py).
+
+## Setup
+
+```python
+# Reasoner setup
+template = self._load_reasoner_template(reasoner_template_name)
+self._factory = DefaultGroupReasonerFactory(system_prompt_template=template)
+self._reasoner = ConcurrentGroupReasoner(factory=self._factory)
+```
+
+## Message Handler
+
+```python
+async def _handle_message(self, content: str, sender: str):
+    message = self._create_reasoner_message(content, sender)
+    # Initiate reasoner processing in message arrival order
+    # (guarantees equal internal and chat message ordering)
+    future = self._reasoner.process(message)
+    # Asynchronously await and process reasoner response
+    create_task(self._handle_response(future, sender))
+
+async def _handle_response(self, future: Future[Response], sender: str):
+    try:
+        reasoner_response = await future
+    except Exception:
+        logger.exception("Reasoner error")
+        return
+
+    logger.debug(f"Reasoner decision: {reasoner_response.decision.value}")
+    if reasoner_response.decision == Decision.IGNORE:
+        return
+
+    if not reasoner_response.query:
+        logger.warning("Reasoner delegated without query")
+        return
+
+    try:
+        # Run downstream assistant with query generated by reasoner
+        logger.debug(f"Assistant query: {reasoner_response.query}")
+        assistant_response = await self._service.run(reasoner_response.query, sender=sender)
+    except Exception:
+        logger.exception("Assistant error")
+    else:
+        logger.debug(f"Assistant response: {assistant_response}")
+
+        if reasoner_response.receiver:
+            # If reasoner set a dynamic receiver, @mention them in the chat message
+            assistant_response = f"@{reasoner_response.receiver} {assistant_response}"
+
+        message = Message(
+            content=assistant_response,
+            sender="system",
+            receiver=reasoner_response.receiver,
+        )
+
+        # Add response message to reasoner
+        # (needed for concurrent reasoning)
+        self._reasoner.append(message)
+
+        # Send response to chat clients
+        await self._server.send_message(message.content, sender=message.sender)
+```
+# API Documentation
+
+## group_sense.Message
+
+```python
+Message(content: str, sender: str, receiver: str | None = None, threads: list[Thread] = list(), attachments: list[Attachment] = list())
+```
+
+A message in a group chat conversation.
+
+Represents a single message exchanged in a group chat environment. Messages can optionally target specific recipients, reference other threads, and include attachments.
+
+Attributes:
+
+| Name          | Type               | Description                                                                             |
+| ------------- | ------------------ | --------------------------------------------------------------------------------------- |
+| `content`     | `str`              | The text content of the message.                                                        |
+| `sender`      | `str`              | User ID of the message sender.                                                          |
+| `receiver`    | \`str              | None\`                                                                                  |
+| `threads`     | `list[Thread]`     | List of referenced threads from other group chats. Used for cross-conversation context. |
+| `attachments` | `list[Attachment]` | List of media or document attachments accompanying the message.                         |
+
+## group_sense.Attachment
+
+```python
+Attachment(path: str, name: str, media_type: str)
+```
+
+Metadata for media or documents attached to group chat messages.
+
+Attachments allow messages to reference external media files or documents that accompany the text content.
+
+Attributes:
+
+| Name         | Type  | Description                                                         |
+| ------------ | ----- | ------------------------------------------------------------------- |
+| `path`       | `str` | File path or URL to the attached resource.                          |
+| `name`       | `str` | Display name of the attachment.                                     |
+| `media_type` | `str` | MIME type of the attachment (e.g., 'image/png', 'application/pdf'). |
+
+## group_sense.Thread
+
+```python
+Thread(id: str, messages: list[Message])
+```
+
+Reference to a group chat thread other than the current one.
+
+Threads allow messages to reference related discussions happening in other group chats, enabling cross-conversation context.
+
+Attributes:
+
+| Name       | Type            | Description                                  |
+| ---------- | --------------- | -------------------------------------------- |
+| `id`       | `str`           | Unique identifier of the referenced thread.  |
+| `messages` | `list[Message]` | List of messages from the referenced thread. |
+
+## group_sense.Decision
+
+Bases: `Enum`
+
+Decision outcome for message triage.
+
+Determines whether messages should be processed by the downstream application or ignored by the triage system.
+
+### DELEGATE
+
+```python
+DELEGATE = 'delegate'
+```
+
+### IGNORE
+
+```python
+IGNORE = 'ignore'
+```
+
+## group_sense.Response
+
+Bases: `BaseModel`
+
+Triage decision response for group chat messages.
+
+Encapsulates the triage decision and optional delegation parameters for processing messages from the group chat environment.
+
+Fields:
+
+- `decision` (`Decision`)
+- `query` (`str | None`)
+- `receiver` (`str | None`)
+
+### decision
+
+```python
+decision: Decision
+```
+
+### query
+
+```python
+query: str | None = None
+```
+
+First-person query for the downstream application, formulated as if written by a single user. Required when decision is DELEGATE. Should be self-contained with all necessary context. Example: 'Can you help me understand how async/await works in Python?'
+
+### receiver
+
+```python
+receiver: str | None = None
+```
+
+User ID of the intended recipient who should receive the downstream application's response. Required when decision is DELEGATE.
+
+## group_sense.GroupReasoner
+
+Bases: `ABC`
+
+Abstract protocol for incremental group chat message processing.
+
+Defines the interface for reasoners that process group chat messages incrementally, maintaining conversation context across multiple calls. Each process() call represents a conversation turn that adds to the reasoner's history.
+
+Implementations decide whether message increments should be ignored or delegated to downstream AI systems for processing.
+
+### processed
+
+```python
+processed: int
+```
+
+Number of messages processed so far by this reasoner.
+
+### process
+
+```python
+process(updates: list[Message]) -> Response
+```
+
+Process a message increment and decide whether to delegate.
+
+Analyzes new messages in the context of the entire conversation history and decides whether to ignore them or generate a query for downstream AI processing.
+
+Parameters:
+
+| Name      | Type            | Description                                                                                                                         | Default    |
+| --------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `updates` | `list[Message]` | List of new messages to process as an increment. Must not be empty. Represents messages that arrived since the last process() call. | *required* |
+
+Returns:
+
+| Type       | Description                                                                                      |
+| ---------- | ------------------------------------------------------------------------------------------------ |
+| `Response` | Response containing the triage decision and optional delegation parameters (query and receiver). |
+
+Raises:
+
+| Type         | Description          |
+| ------------ | -------------------- |
+| `ValueError` | If updates is empty. |
+
+## group_sense.GroupReasonerFactory
+
+Bases: `ABC`
+
+Abstract factory protocol for creating GroupReasoner instances.
+
+Defines the interface for factories that create reasoner instances customized for specific owners. Used primarily by ConcurrentGroupReasoner to create per-sender reasoner instances.
+
+### create_group_reasoner
+
+```python
+create_group_reasoner(owner: str) -> GroupReasoner
+```
+
+Create a new GroupReasoner instance for the specified owner.
+
+Parameters:
+
+| Name    | Type  | Description                                                                                          | Default    |
+| ------- | ----- | ---------------------------------------------------------------------------------------------------- | ---------- |
+| `owner` | `str` | User ID of the reasoner instance owner. The reasoner will be customized for this user's perspective. | *required* |
+
+Returns:
+
+| Type            | Description                                            |
+| --------------- | ------------------------------------------------------ |
+| `GroupReasoner` | A new GroupReasoner instance configured for the owner. |
+
+## group_sense.DefaultGroupReasoner
+
+```python
+DefaultGroupReasoner(system_prompt: str, model: str | Model | None = None, model_settings: ModelSettings | None = None)
+```
+
+Bases: `GroupReasoner`
+
+Sequential group chat message processor with single shared context.
+
+Processes group chat messages incrementally using a single AI agent that maintains conversation history across all process() calls. Suitable for scenarios where all messages are processed from a unified perspective without per-sender context separation.
+
+The reasoner uses an AI agent to decide whether each message increment should be ignored or delegated to downstream systems with a generated query.
+
+Example
+
+```python
+reasoner = DefaultGroupReasoner(system_prompt="...")
+response = await reasoner.process([message1, message2])
+if response.decision == Decision.DELEGATE:
+    print(f"Query: {response.query}")
+```
+
+Initialize the reasoner with a system prompt and optional model configuration.
+
+Parameters:
+
+| Name             | Type            | Description                                                                                                                 | Default                                                                                  |
+| ---------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `system_prompt`  | `str`           | System prompt that defines the reasoner's behavior and decision-making criteria. Should not contain an {owner} placeholder. | *required*                                                                               |
+| `model`          | \`str           | Model                                                                                                                       | None\`                                                                                   |
+| `model_settings` | \`ModelSettings | None\`                                                                                                                      | Optional model-specific settings. Defaults to GoogleModelSettings with thinking enabled. |
+
+### get_serialized
+
+```python
+get_serialized() -> dict[str, Any]
+```
+
+Serialize the reasoner's state for persistence.
+
+Captures the conversation history and message count for later restoration via set_serialized(). Used by applications to persist reasoner state across restarts or for debugging purposes.
+
+Returns:
+
+| Type             | Description                                                                        |
+| ---------------- | ---------------------------------------------------------------------------------- |
+| `dict[str, Any]` | Dictionary containing serialized conversation history and processed message count. |
+
+### process
+
+```python
+process(updates: list[Message]) -> Response
+```
+
+Process a message increment and decide whether to delegate.
+
+Analyzes new messages in the context of the entire conversation history maintained by this reasoner. Each call adds to the conversation history, making subsequent calls aware of previous messages and decisions.
+
+Parameters:
+
+| Name      | Type            | Description                                                                                                                         | Default    |
+| --------- | --------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `updates` | `list[Message]` | List of new messages to process as an increment. Must not be empty. Represents messages that arrived since the last process() call. | *required* |
+
+Returns:
+
+| Type       | Description                                                                                                           |
+| ---------- | --------------------------------------------------------------------------------------------------------------------- |
+| `Response` | Response containing the triage decision (IGNORE or DELEGATE) and optional delegation parameters (query and receiver). |
+
+Raises:
+
+| Type         | Description          |
+| ------------ | -------------------- |
+| `ValueError` | If updates is empty. |
+
+### set_serialized
+
+```python
+set_serialized(state: dict[str, Any])
+```
+
+Restore the reasoner's state from serialized data.
+
+Reconstructs the conversation history and message count from previously serialized state. Used by applications to restore reasoner state after restarts or for debugging purposes.
+
+Parameters:
+
+| Name    | Type             | Description                                                                                                                                     | Default    |
+| ------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `state` | `dict[str, Any]` | Dictionary containing serialized state from get_serialized(). Must include 'agent' (conversation history) and 'processed' (message count) keys. | *required* |
+
+## group_sense.DefaultGroupReasonerFactory
+
+```python
+DefaultGroupReasonerFactory(system_prompt_template: str)
+```
+
+Bases: `GroupReasonerFactory`
+
+Factory for creating DefaultGroupReasoner instances with owner-specific prompts.
+
+Creates reasoner instances by substituting the {owner} placeholder in a system prompt template. Used primarily by ConcurrentGroupReasoner to create per-sender reasoner instances, where each sender gets their own reasoner customized with their user ID.
+
+Example
+
+```python
+template = "You are assisting {owner} in a group chat..."
+factory = DefaultGroupReasonerFactory(system_prompt_template=template)
+reasoner = factory.create_group_reasoner(owner="user123")
+```
+
+Initialize the factory with a system prompt template.
+
+Parameters:
+
+| Name                     | Type  | Description                                                                                                                        | Default    |
+| ------------------------ | ----- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `system_prompt_template` | `str` | Template string containing an {owner} placeholder that will be replaced with the actual owner ID when creating reasoner instances. | *required* |
+
+Raises:
+
+| Type         | Description                                              |
+| ------------ | -------------------------------------------------------- |
+| `ValueError` | If the template does not contain an {owner} placeholder. |
+
+### create_group_reasoner
+
+```python
+create_group_reasoner(owner: str, **kwargs: Any) -> GroupReasoner
+```
+
+Create a DefaultGroupReasoner instance for the specified owner.
+
+Substitutes the {owner} placeholder in the template with the provided owner ID and creates a new reasoner instance.
+
+Parameters:
+
+| Name       | Type  | Description                                                                                            | Default    |
+| ---------- | ----- | ------------------------------------------------------------------------------------------------------ | ---------- |
+| `owner`    | `str` | User ID to substitute into the {owner} placeholder.                                                    | *required* |
+| `**kwargs` | `Any` | Additional keyword arguments passed to DefaultGroupReasoner constructor (e.g., model, model_settings). | `{}`       |
+
+Returns:
+
+| Type            | Description                                                                           |
+| --------------- | ------------------------------------------------------------------------------------- |
+| `GroupReasoner` | A new DefaultGroupReasoner instance configured with the owner-specific system prompt. |
+
+## group_sense.ConcurrentGroupReasoner
+
+```python
+ConcurrentGroupReasoner(factory: GroupReasonerFactory)
+```
+
+Concurrent group chat processor with per-sender reasoner instances.
+
+Manages multiple reasoner instances (one per sender) that process messages concurrently. Maintains a shared list of all group chat messages that all reasoner instances can see, accessible via the messages property.
+
+Each sender gets their own reasoner instance with independent conversation context, but all instances see the same shared group chat messages. A reasoner instance is triggered only when its owner sends a message. Sequential execution per sender prevents concurrent state corruption to a single reasoner instance.
+
+The process() method returns a Future to allow callers to control message ordering: calling process() in the order messages arrive from the group chat ensures messages are stored internally in that same order.
+
+Example
+
+```python
+factory = DefaultGroupReasonerFactory(system_prompt_template="...")
+reasoner = ConcurrentGroupReasoner(factory=factory)
+
+# Process messages concurrently
+future1 = reasoner.process(Message(content="Hi", sender="alice"))
+future2 = reasoner.process(Message(content="Hello", sender="bob"))
+
+# Await responses
+response1 = await future1
+response2 = await future2
+
+# Add AI response to context without triggering reasoning
+reasoner.append(Message(content="How can I help?", sender="system"))
+```
+
+Initialize the concurrent reasoner with a factory.
+
+Parameters:
+
+| Name      | Type                   | Description                                                                                                                | Default    |
+| --------- | ---------------------- | -------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `factory` | `GroupReasonerFactory` | Factory used to create per-sender reasoner instances. Each unique sender gets their own reasoner created via this factory. | *required* |
+
+### messages
+
+```python
+messages: list[Message]
+```
+
+The shared list of all group chat messages stored internally.
+
+### append
+
+```python
+append(message: Message)
+```
+
+Add a message to the shared group chat context without triggering reasoning.
+
+Adds the message to the internally stored group chat message list that all reasoner instances share, without initiating a reasoning process. Typically used for AI-generated responses to prevent infinite reasoning loops while ensuring all reasoners see these messages.
+
+Parameters:
+
+| Name      | Type      | Description                                                                                                             | Default    |
+| --------- | --------- | ----------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `message` | `Message` | Message to add to the shared group chat context. Typically messages with sender="system" or other AI-generated content. | *required* |
+
+### process
+
+```python
+process(message: Message) -> Future[Response]
+```
+
+Process a message and return a Future for the reasoning result.
+
+Adds the message to the shared group chat message list and triggers the sender's reasoner instance. Returns a Future to allow the caller to control message ordering: calling process() in the order messages arrive from the group chat ensures they are stored internally in that same order.
+
+Processing happens asynchronously. Messages from different senders can be processed concurrently, while messages from the same sender are processed sequentially to prevent concurrent state corruption to that sender's reasoner instance.
+
+Parameters:
+
+| Name      | Type      | Description                                                                                | Default    |
+| --------- | --------- | ------------------------------------------------------------------------------------------ | ---------- |
+| `message` | `Message` | User message to process. The sender field determines which reasoner instance is triggered. | *required* |
+
+Returns:
+
+| Type               | Description                                                                                                                                                      |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Future[Response]` | Future that will resolve to a Response containing the triage decision and optional delegation parameters. Use await or asyncio utilities to retrieve the result. |
+
+Example
+
+```python
+# Store messages internally in arrival order, process concurrently
+f1 = reasoner.process(msg1)  # from alice
+f2 = reasoner.process(msg2)  # from bob
+f3 = reasoner.process(msg3)  # from alice
+
+# Messages stored internally as: msg1, msg2, msg3
+# Processing: msg1 and msg2 run concurrently, msg3 waits for msg1
+```

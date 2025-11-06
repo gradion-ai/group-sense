@@ -1,0 +1,23 @@
+# group-sense
+
+> Multi-party conversation intelligence for AI agents
+
+The `group_sense` package is a library for detecting patterns in group chat message streams
+and transforming them into self-contained queries for downstream AI systems. This enables
+existing single-user AI agents to participate in group conversations based on configurable
+criteria, without requiring training on multi-party conversations.
+
+
+## User Guide
+
+- [Introduction](https://gradion-ai.github.io/group-sense/index.md): Introduction to Group Sense
+- [Installation](https://gradion-ai.github.io/group-sense/installation/index.md): Installation and API key setup
+- [Basics](https://gradion-ai.github.io/group-sense/basics/index.md): Core concepts and reasoner types
+- [Examples](https://gradion-ai.github.io/group-sense/examples/index.md): Usage examples for different engagement patterns
+- [Integration](https://gradion-ai.github.io/group-sense/integration/index.md): Integrating Group Sense into applications
+
+## API Documentation
+
+- [Message](https://gradion-ai.github.io/group-sense/api/message/index.md): Message data structures
+- [Reasoner](https://gradion-ai.github.io/group-sense/api/reasoner/index.md): Reasoner interfaces and implementations
+
