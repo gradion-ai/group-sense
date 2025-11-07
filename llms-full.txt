@@ -1,8 +1,8 @@
 # Group Sense
 
-> Multi-party conversation intelligence for AI agents
+> Multi-party conversation intelligence layer
 
-The `group_sense` package is a library for detecting patterns in group chat message streams
+Group Sense is a library for detecting patterns in group chat message streams
 and transforming them into self-contained queries for downstream AI systems. This enables
 existing single-user AI agents to participate in group conversations based on configurable
 criteria, without requiring training on multi-party conversations.
