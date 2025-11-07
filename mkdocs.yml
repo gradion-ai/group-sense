@@ -1,5 +1,5 @@
 site_name: Group Sense
-site_description: Multi-party conversation intelligence for AI agents
+site_description: Multi-party conversation intelligence layer
 site_url: https://gradion-ai.github.io/group-sense/
 
 repo_name: gradion-ai/group-sense
@@ -70,7 +70,7 @@ plugins:
               domains: [py, std]
   - llmstxt:
       markdown_description: |
-        The `group_sense` package is a library for detecting patterns in group chat message streams
+        Group Sense is a library for detecting patterns in group chat message streams
         and transforming them into self-contained queries for downstream AI systems. This enables
         existing single-user AI agents to participate in group conversations based on configurable
         criteria, without requiring training on multi-party conversations.
