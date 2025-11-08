@@ -19,7 +19,7 @@ Abstract protocols and response types:
 
 ### `group_sense.reasoner.default`
 Default single-context implementation:
-- `DefaultGroupReasoner`: Processes group chat messages using a single AI agent instance with shared conversation state across all senders. All messages are added to the same conversation history. Supports state serialization.
+- `DefaultGroupReasoner`: Processes group chat messages using a single reasoner agent instance with shared conversation state across all senders. All messages are added to the same conversation history. Supports state serialization.
 - `DefaultGroupReasonerFactory`: Creates `DefaultGroupReasoner` instances with owner-specific system prompts by substituting `{owner}` placeholders
 
 ### `group_sense.reasoner.concurrent`

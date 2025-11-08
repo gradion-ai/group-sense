@@ -1,12 +1,3 @@
-"""Tutorial 1: Deferred Questions
-
-This example demonstrates the DefaultGroupReasoner handling "deferred questions" -
-when a user cannot answer a question addressed to them, the reasoner delegates
-to the AI assistant.
-
-For a full reference prompt, see: examples/prompts/default/general_assist.md
-"""
-
 import asyncio
 import logging
 
