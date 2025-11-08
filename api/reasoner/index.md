@@ -138,9 +138,9 @@ Bases: `GroupReasoner`
 
 Sequential group chat message processor with single shared context.
 
-Processes group chat messages incrementally using a single AI agent that maintains conversation history across all process() calls. Suitable for scenarios where all messages are processed from a unified perspective without per-sender context separation.
+Processes group chat messages incrementally using a single reasoner agent that maintains conversation history across all process() calls. Suitable for scenarios where all messages are processed from a unified perspective without per-sender context separation.
 
-The reasoner uses an AI agent to decide whether each message increment should be ignored or delegated to downstream systems with a generated query.
+The reasoner uses an agent to decide whether each message increment should be ignored or delegated to downstream systems with a generated query.
 
 Example
 

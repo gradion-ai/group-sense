@@ -2,11 +2,11 @@
 
 Group Sense processes messages through reasoners that analyze incoming group chat messages and decide whether to ignore them or delegate them to an AI assistant. Each message has a sender (the user who wrote it) and content. When a reasoner decides to delegate, it generates a self-contained query suitable for a single-user AI assistant and optionally specifies which user should receive the response.
 
-All reasoners see the complete group chat context - every message from every user. The difference between reasoner types is how they maintain their internal reasoning state across messages.
+Reasoners see the complete group chat context - every message from every user. The difference between reasoner types is how they maintain their internal reasoning state across messages.
 
 ## DefaultGroupReasoner
 
-DefaultGroupReasoner uses a single AI agent with shared reasoning state. All messages are processed through one conversation history, providing a unified perspective across all users.
+DefaultGroupReasoner uses a single reasoner agent with shared reasoning state. All messages are processed through one conversation history, providing a unified perspective across all users.
 
 ```python
 from group_sense import Decision, DefaultGroupReasoner, Message
@@ -46,7 +46,7 @@ The reasoner maintains state across `process()` calls, enabling context-aware de
 
 ## ConcurrentGroupReasoner
 
-ConcurrentGroupReasoner creates a separate AI agent for each user, each maintaining its own independent reasoning state. While all agents see the complete group chat context, each maintains a separate conversation history. Messages from different users can be processed concurrently, while messages from the same user are processed sequentially.
+ConcurrentGroupReasoner creates a separate reasoner agent for each user, each maintaining its own independent reasoning state. While all reasoner agents see the complete group chat context, each maintains a separate conversation history. Messages from different users can be processed concurrently, while messages from the same user are processed sequentially.
 
 ```python
 from group_sense import ConcurrentGroupReasoner, Decision, DefaultGroupReasonerFactory, Message
@@ -79,4 +79,4 @@ if response2.decision == Decision.DELEGATE:
     logger.info("Bob's reasoner detects contradiction using full group context")
 ```
 
-Each user gets their own AI agent customized with their user ID via DefaultGroupReasonerFactory. While all agents see the same group chat messages, each maintains its own conversation history for reasoning. A complete runnable example is available at [examples/basics/concurrent_reasoner.py](https://github.com/gradion-ai/group-sense/blob/main/examples/basics/concurrent_reasoner.py).
+Each user gets their own reasoner agent customized with their user ID via DefaultGroupReasonerFactory. A complete runnable example is available at [examples/basics/concurrent_reasoner.py](https://github.com/gradion-ai/group-sense/blob/main/examples/basics/concurrent_reasoner.py).
