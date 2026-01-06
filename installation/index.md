@@ -2,7 +2,7 @@
 
 ## Python Package
 
-```bash
+```
 pip install group-sense
 ```
 
@@ -14,7 +14,7 @@ For development setup and contributing guidelines, see [DEVELOPMENT.md](https://
 
 Group Sense uses Google Gemini models by default. Set your API key:
 
-```bash
+```
 export GOOGLE_API_KEY="your-api-key"
 ```
 

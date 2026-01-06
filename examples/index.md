@@ -6,7 +6,7 @@ The following examples demonstrate different engagement patterns using simplifie
 
 In group conversations, users sometimes cannot answer questions addressed to them. The reasoner detects this pattern and delegates the original question to the AI, setting the receiver to the original questioner. A complete runnable example is available at [examples/example_1.py](https://github.com/gradion-ai/group-sense/blob/main/examples/example_1.py).
 
-```python
+```
 from group_sense import Decision, DefaultGroupReasoner, Message
 
 
@@ -56,7 +56,7 @@ This example uses DefaultGroupReasoner to process messages and make delegation d
 
 When participants provide conflicting information about facts, dates, or events, the reasoner detects the contradiction and generates verification queries without requiring explicit user requests. A complete runnable example is available at [examples/example_2.py](https://github.com/gradion-ai/group-sense/blob/main/examples/example_2.py).
 
-```python
+```
 from group_sense import Decision, DefaultGroupReasoner, Message
 
 
@@ -97,7 +97,7 @@ This example demonstrates how DefaultGroupReasoner can proactively identify patt
 
 Provides assistance by handling direct questions and follow-up queries. Uses ConcurrentGroupReasoner so that reasoning runs for different users concurrently. This example is similar to direct assistant usage, but the reasoner handles all group context complexity: transforming group conversations into self-contained queries and managing per-user reasoning state. A complete runnable example is available at [examples/example_3.py](https://github.com/gradion-ai/group-sense/blob/main/examples/example_3.py).
 
-```python
+```
 from group_sense import ConcurrentGroupReasoner, Decision, DefaultGroupReasonerFactory, Message
 
 

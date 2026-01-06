@@ -4,7 +4,7 @@ The code example below demonstrates how to integrate Group Sense as an adapter b
 
 ## Setup
 
-```python
+```
 # Reasoner setup
 template = self._load_reasoner_template(reasoner_template_name)
 self._factory = DefaultGroupReasonerFactory(system_prompt_template=template)
@@ -13,7 +13,7 @@ self._reasoner = ConcurrentGroupReasoner(factory=self._factory)
 
 ## Message Handler
 
-```python
+```
 async def _handle_message(self, content: str, sender: str):
     message = self._create_reasoner_message(content, sender)
     # Initiate reasoner processing in message arrival order

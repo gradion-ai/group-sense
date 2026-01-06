@@ -8,13 +8,13 @@ Determines whether messages should be processed by the downstream application or
 
 ### DELEGATE
 
-```python
+```
 DELEGATE = 'delegate'
 ```
 
 ### IGNORE
 
-```python
+```
 IGNORE = 'ignore'
 ```
 
@@ -34,13 +34,13 @@ Fields:
 
 ### decision
 
-```python
+```
 decision: Decision
 ```
 
 ### query
 
-```python
+```
 query: str | None = None
 ```
 
@@ -48,7 +48,7 @@ First-person query for the downstream application, formulated as if written by a
 
 ### receiver
 
-```python
+```
 receiver: str | None = None
 ```
 
@@ -66,7 +66,7 @@ Implementations decide whether message increments should be ignored or delegated
 
 ### processed
 
-```python
+```
 processed: int
 ```
 
@@ -74,7 +74,7 @@ Number of messages processed so far by this reasoner.
 
 ### process
 
-```python
+```
 process(updates: list[Message]) -> Response
 ```
 
@@ -110,7 +110,7 @@ Defines the interface for factories that create reasoner instances customized fo
 
 ### create_group_reasoner
 
-```python
+```
 create_group_reasoner(owner: str) -> GroupReasoner
 ```
 
@@ -130,7 +130,7 @@ Returns:
 
 ## group_sense.DefaultGroupReasoner
 
-```python
+```
 DefaultGroupReasoner(system_prompt: str, model: str | Model | None = None, model_settings: ModelSettings | None = None)
 ```
 
@@ -144,7 +144,7 @@ The reasoner uses an agent to decide whether each message increment should be ig
 
 Example
 
-```python
+```
 reasoner = DefaultGroupReasoner(system_prompt="...")
 response = await reasoner.process([message1, message2])
 if response.decision == Decision.DELEGATE:
@@ -163,7 +163,7 @@ Parameters:
 
 ### get_serialized
 
-```python
+```
 get_serialized() -> dict[str, Any]
 ```
 
@@ -179,7 +179,7 @@ Returns:
 
 ### process
 
-```python
+```
 process(updates: list[Message]) -> Response
 ```
 
@@ -207,7 +207,7 @@ Raises:
 
 ### set_serialized
 
-```python
+```
 set_serialized(state: dict[str, Any])
 ```
 
@@ -223,7 +223,7 @@ Parameters:
 
 ## group_sense.DefaultGroupReasonerFactory
 
-```python
+```
 DefaultGroupReasonerFactory(system_prompt_template: str)
 ```
 
@@ -235,7 +235,7 @@ Creates reasoner instances by substituting the {owner} placeholder in a system p
 
 Example
 
-```python
+```
 template = "You are assisting {owner} in a group chat..."
 factory = DefaultGroupReasonerFactory(system_prompt_template=template)
 reasoner = factory.create_group_reasoner(owner="user123")
@@ -257,7 +257,7 @@ Raises:
 
 ### create_group_reasoner
 
-```python
+```
 create_group_reasoner(owner: str, **kwargs: Any) -> GroupReasoner
 ```
 
@@ -280,7 +280,7 @@ Returns:
 
 ## group_sense.ConcurrentGroupReasoner
 
-```python
+```
 ConcurrentGroupReasoner(factory: GroupReasonerFactory)
 ```
 
@@ -294,7 +294,7 @@ The process() method returns a Future to allow callers to control message orderi
 
 Example
 
-```python
+```
 factory = DefaultGroupReasonerFactory(system_prompt_template="...")
 reasoner = ConcurrentGroupReasoner(factory=factory)
 
@@ -320,7 +320,7 @@ Parameters:
 
 ### messages
 
-```python
+```
 messages: list[Message]
 ```
 
@@ -328,7 +328,7 @@ The shared list of all group chat messages stored internally.
 
 ### append
 
-```python
+```
 append(message: Message)
 ```
 
@@ -344,7 +344,7 @@ Parameters:
 
 ### process
 
-```python
+```
 process(message: Message) -> Future[Response]
 ```
 
@@ -368,7 +368,7 @@ Returns:
 
 Example
 
-```python
+```
 # Store messages internally in arrival order, process concurrently
 f1 = reasoner.process(msg1)  # from alice
 f2 = reasoner.process(msg2)  # from bob

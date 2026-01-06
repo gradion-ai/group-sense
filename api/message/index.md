@@ -1,6 +1,6 @@
 ## group_sense.Message
 
-```python
+```
 Message(content: str, sender: str, receiver: str | None = None, threads: list[Thread] = list(), attachments: list[Attachment] = list())
 ```
 
@@ -20,7 +20,7 @@ Attributes:
 
 ## group_sense.Attachment
 
-```python
+```
 Attachment(path: str, name: str, media_type: str)
 ```
 
@@ -38,7 +38,7 @@ Attributes:
 
 ## group_sense.Thread
 
-```python
+```
 Thread(id: str, messages: list[Message])
 ```
 

@@ -8,7 +8,7 @@ Reasoners see the complete group chat context - every message from every user. T
 
 DefaultGroupReasoner uses a single reasoner agent with shared reasoning state. All messages are processed through one conversation history, providing a unified perspective across all users.
 
-```python
+```
 from group_sense import Decision, DefaultGroupReasoner, Message
 
 
@@ -48,7 +48,7 @@ The reasoner maintains state across `process()` calls, enabling context-aware de
 
 ConcurrentGroupReasoner creates a separate reasoner agent for each user, each maintaining its own independent reasoning state. While all reasoner agents see the complete group chat context, each maintains a separate conversation history. Messages from different users can be processed concurrently, while messages from the same user are processed sequentially.
 
-```python
+```
 from group_sense import ConcurrentGroupReasoner, Decision, DefaultGroupReasonerFactory, Message
 
 
