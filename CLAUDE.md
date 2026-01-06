@@ -1,3 +1,7 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 ## Overview
 
 The `group_sense` package is a library for detecting patterns in group chat message streams and transforming them into self-contained queries for downstream AI systems. This enables existing single-user AI agents to participate in group conversations based on configurable criteria, without requiring training on multi-party conversations.
