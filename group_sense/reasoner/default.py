@@ -47,7 +47,7 @@ class DefaultGroupReasoner(GroupReasoner):
         Args:
             system_prompt: System prompt that defines the reasoner's behavior and
                 decision-making criteria. Should not contain an {owner} placeholder.
-            model: Optional AI model to use. Defaults to "gemini-2.5-flash".
+            model: Optional AI model to use. Defaults to "google-gla:gemini-3-flash-preview".
                 Can be a model name string or a pydantic-ai Model instance.
             model_settings: Optional model-specific settings. Defaults to
                 GoogleModelSettings with thinking enabled.
@@ -58,11 +58,11 @@ class DefaultGroupReasoner(GroupReasoner):
         self._agent = Agent(
             system_prompt=system_prompt,
             output_type=NativeOutput(Response),
-            model=model or "gemini-2.5-flash",
+            model=model or "google-gla:gemini-3-flash-preview",
             model_settings=model_settings
             or GoogleModelSettings(
                 google_thinking_config={
-                    "thinking_budget": -1,
+                    "thinking_level": "high",
                     "include_thoughts": True,
                 }
             ),
@@ -99,7 +99,11 @@ class DefaultGroupReasoner(GroupReasoner):
         result = await self._agent.run(reasoner_prompt, message_history=self._history)
         self._history = result.all_messages()
         self._processed += len(updates)
-        return result.output
+
+        response = result.output
+        if response.receiver == "":
+            response.receiver = None
+        return response
 
     def get_serialized(self) -> dict[str, Any]:
         """Serialize the reasoner's state for persistence.

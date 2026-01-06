@@ -26,7 +26,7 @@ class Assistant:
         self._history: list[ModelMessage] = []
         self._agent = Agent(
             system_prompt=SYSTEM_PROMPT,
-            model="gemini-2.5-flash",
+            model="google-gla:gemini-2.5-flash",
             model_settings=GoogleModelSettings(
                 google_thinking_config={
                     "thinking_budget": 0,
