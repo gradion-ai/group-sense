@@ -55,8 +55,8 @@ plugins:
       markdown_description: |
         Group Sense is a library for detecting patterns in group chat message streams
         and transforming them into self-contained queries for downstream AI systems. This enables
-        existing single-user AI agents to participate in group conversations based on configurable
-        criteria, without requiring training on multi-party conversations.
+        existing single-user AI agents to participate in group conversations based on criteria
+        defined in natural language, without requiring training on multi-party dialogue.
       full_output: llms-full.txt
       sections:
         User Guide:
@@ -88,11 +88,14 @@ extra_css:
 
 nav:
   - User Guide:
-    - Introduction: index.md
+    - Overview: index.md
     - Installation: installation.md
     - Basics: basics.md
     - Examples: examples.md
     - Integration: integration.md
+    - LLM readable:
+      - llms.txt: llms.txt
+      - llms-full.txt: llms-full.txt
   - API Documentation:
     - Message: api/message.md
     - Reasoner: api/reasoner.md
