@@ -4,13 +4,13 @@
 
 Group Sense is a library for detecting patterns in group chat message streams
 and transforming them into self-contained queries for downstream AI systems. This enables
-existing single-user AI agents to participate in group conversations based on configurable
-criteria, without requiring training on multi-party conversations.
+existing single-user AI agents to participate in group conversations based on criteria
+defined in natural language, without requiring training on multi-party dialogue.
 
 
 ## User Guide
 
-- [Introduction](https://gradion-ai.github.io/group-sense/index.md): Introduction to Group Sense
+- [Overview](https://gradion-ai.github.io/group-sense/index.md): Introduction to Group Sense
 - [Installation](https://gradion-ai.github.io/group-sense/installation/index.md): Installation and API key setup
 - [Basics](https://gradion-ai.github.io/group-sense/basics/index.md): Core concepts and reasoner types
 - [Examples](https://gradion-ai.github.io/group-sense/examples/index.md): Usage examples for different engagement patterns
