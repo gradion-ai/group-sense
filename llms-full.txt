@@ -559,21 +559,21 @@ Parameters:
 | `model`          | \`str           | Model                                                                                                                       | None\`                                                                                   |
 | `model_settings` | \`ModelSettings | None\`                                                                                                                      | Optional model-specific settings. Defaults to GoogleModelSettings with thinking enabled. |
 
-### get_serialized
+### get_new_messages
 
 ```
-get_serialized() -> dict[str, Any]
+get_new_messages() -> list[dict[str, Any]]
 ```
 
-Serialize the reasoner's state for persistence.
+Return new data since last save for incremental persistence.
 
-Captures the conversation history and message count for later restoration via set_serialized(). Used by applications to persist reasoner state across restarts or for debugging purposes.
+Returns an entry containing the new messages from the last process() call along with the cumulative processed count. Clears the internal new messages buffer after returning.
 
 Returns:
 
-| Type             | Description                                                                        |
-| ---------------- | ---------------------------------------------------------------------------------- |
-| `dict[str, Any]` | Dictionary containing serialized conversation history and processed message count. |
+| Type                   | Description                                                                                                                                              |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `list[dict[str, Any]]` | List containing a single entry with 'messages' (new conversation messages) and 'processed' (cumulative message count), or empty list if no new messages. |
 
 ### process
 
@@ -606,18 +606,18 @@ Raises:
 ### set_serialized
 
 ```
-set_serialized(state: dict[str, Any])
+set_serialized(lines: list[dict[str, Any]])
 ```
 
-Restore the reasoner's state from serialized data.
+Restore the reasoner's state from JSONL lines.
 
-Reconstructs the conversation history and message count from previously serialized state. Used by applications to restore reasoner state after restarts or for debugging purposes.
+Reconstructs the conversation history by concatenating messages from all entries. Uses the processed count from the last entry.
 
 Parameters:
 
-| Name    | Type             | Description                                                                                                                                     | Default    |
-| ------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| `state` | `dict[str, Any]` | Dictionary containing serialized state from get_serialized(). Must include 'agent' (conversation history) and 'processed' (message count) keys. | *required* |
+| Name    | Type                   | Description                                                                                                     | Default    |
+| ------- | ---------------------- | --------------------------------------------------------------------------------------------------------------- | ---------- |
+| `lines` | `list[dict[str, Any]]` | List of entries, each containing 'messages' (conversation messages) and 'processed' (cumulative message count). | *required* |
 
 ## group_sense.DefaultGroupReasonerFactory
 
