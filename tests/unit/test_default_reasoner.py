@@ -122,3 +122,119 @@ class TestDefaultGroupReasoner:
         messages2 = [Message(content="Second", sender="user2", receiver="bot")]
         await reasoner.process(messages2)
         assert len(reasoner._history) > history_length_after_first
+
+    @pytest.mark.asyncio
+    async def test_get_new_messages_returns_empty_before_process(self, reasoner):
+        result = reasoner.get_new_messages()
+        assert result == []
+
+    @pytest.mark.asyncio
+    async def test_get_new_messages_returns_messages_after_process(self, reasoner):
+        messages = [Message(content="Hello", sender="user1", receiver="bot")]
+        await reasoner.process(messages)
+
+        result = reasoner.get_new_messages()
+
+        assert len(result) == 1
+        assert "messages" in result[0]
+        assert "processed" in result[0]
+        assert result[0]["processed"] == 1
+
+    @pytest.mark.asyncio
+    async def test_get_new_messages_clears_buffer_after_call(self, reasoner):
+        messages = [Message(content="Hello", sender="user1", receiver="bot")]
+        await reasoner.process(messages)
+
+        first_call = reasoner.get_new_messages()
+        second_call = reasoner.get_new_messages()
+
+        assert len(first_call) == 1
+        assert second_call == []
+
+    @pytest.mark.asyncio
+    async def test_set_serialized_with_empty_list(self, reasoner):
+        messages = [Message(content="Hello", sender="user1", receiver="bot")]
+        await reasoner.process(messages)
+        original_processed = reasoner.processed
+
+        reasoner.set_serialized([])
+
+        assert reasoner.processed == original_processed
+
+    @pytest.mark.asyncio
+    async def test_set_serialized_restores_state(self, reasoner):
+        messages = [Message(content="Hello", sender="user1", receiver="bot")]
+        await reasoner.process(messages)
+        incremental_state = reasoner.get_new_messages()
+
+        model = TestModel(custom_output_args=Response(decision=Decision.IGNORE))
+        new_reasoner = TestableDefaultGroupReasoner(
+            system_prompt="You are a helpful assistant",
+            model=model,
+        )
+        new_reasoner.set_serialized(incremental_state)
+
+        assert new_reasoner.processed == 1
+        assert len(new_reasoner._history) > 0
+
+    @pytest.mark.asyncio
+    async def test_round_trip_serialization(self, reasoner):
+        messages1 = [Message(content="First", sender="user1", receiver="bot")]
+        await reasoner.process(messages1)
+        state1 = reasoner.get_new_messages()
+
+        messages2 = [Message(content="Second", sender="user2", receiver="bot")]
+        await reasoner.process(messages2)
+        state2 = reasoner.get_new_messages()
+
+        model = TestModel(custom_output_args=Response(decision=Decision.IGNORE))
+        new_reasoner = TestableDefaultGroupReasoner(
+            system_prompt="You are a helpful assistant",
+            model=model,
+        )
+        new_reasoner.set_serialized(state1 + state2)
+
+        assert new_reasoner.processed == 2
+        assert len(new_reasoner._history) == len(reasoner._history)
+
+    @pytest.mark.asyncio
+    async def test_multiple_increments_accumulate(self, reasoner):
+        all_states = []
+
+        for i in range(3):
+            messages = [Message(content=f"Message {i}", sender="user1", receiver="bot")]
+            await reasoner.process(messages)
+            all_states.extend(reasoner.get_new_messages())
+
+        assert len(all_states) == 3
+        assert all_states[0]["processed"] == 1
+        assert all_states[1]["processed"] == 2
+        assert all_states[2]["processed"] == 3
+
+        model = TestModel(custom_output_args=Response(decision=Decision.IGNORE))
+        new_reasoner = TestableDefaultGroupReasoner(
+            system_prompt="You are a helpful assistant",
+            model=model,
+        )
+        new_reasoner.set_serialized(all_states)
+
+        assert new_reasoner.processed == 3
+        assert len(new_reasoner._history) > 0
+
+    @pytest.mark.asyncio
+    async def test_restored_reasoner_can_continue_processing(self, reasoner):
+        messages1 = [Message(content="First", sender="user1", receiver="bot")]
+        await reasoner.process(messages1)
+        state = reasoner.get_new_messages()
+
+        model = TestModel(custom_output_args=Response(decision=Decision.IGNORE))
+        new_reasoner = TestableDefaultGroupReasoner(
+            system_prompt="You are a helpful assistant",
+            model=model,
+        )
+        new_reasoner.set_serialized(state)
+
+        messages2 = [Message(content="Second", sender="user2", receiver="bot")]
+        await new_reasoner.process(messages2)
+
+        assert new_reasoner.processed == 2

@@ -54,6 +54,7 @@ class DefaultGroupReasoner(GroupReasoner):
         """
         super().__init__()
         self._history: list[ModelMessage] = []
+        self._new_messages: list[Any] = []
         self._processed: int = 0
         self._agent = Agent(
             system_prompt=system_prompt,
@@ -97,6 +98,7 @@ class DefaultGroupReasoner(GroupReasoner):
         reasoner_prompt = user_prompt(updates, self._processed)
         logger.debug(f"Reasoner prompt:\n{reasoner_prompt}")
         result = await self._agent.run(reasoner_prompt, message_history=self._history)
+        self._new_messages = to_jsonable_python(result.new_messages(), bytes_mode="base64")
         self._history = result.all_messages()
         self._processed += len(updates)
 
@@ -105,39 +107,43 @@ class DefaultGroupReasoner(GroupReasoner):
             response.receiver = None
         return response
 
-    def get_serialized(self) -> dict[str, Any]:
-        """Serialize the reasoner's state for persistence.
+    def get_new_messages(self) -> list[dict[str, Any]]:
+        """Return new data since last save for incremental persistence.
 
-        Captures the conversation history and message count for later
-        restoration via
-        [`set_serialized()`][group_sense.reasoner.default.DefaultGroupReasoner.set_serialized].
-        Used by applications to persist reasoner state across restarts or for
-        debugging purposes.
+        Returns an entry containing the new messages from the last
+        [`process()`][group_sense.reasoner.default.DefaultGroupReasoner.process]
+        call along with the cumulative processed count. Clears the internal
+        new messages buffer after returning.
 
         Returns:
-            Dictionary containing serialized conversation history and processed
-                message count.
+            List containing a single entry with 'messages' (new conversation
+                messages) and 'processed' (cumulative message count), or empty
+                list if no new messages.
         """
-        return {
-            "agent": to_jsonable_python(self._history, bytes_mode="base64"),
-            "processed": self._processed,
-        }
+        if not self._new_messages:
+            return []
+        result = [{"messages": self._new_messages, "processed": self._processed}]
+        self._new_messages = []
+        return result
 
-    def set_serialized(self, state: dict[str, Any]):
-        """Restore the reasoner's state from serialized data.
+    def set_serialized(self, lines: list[dict[str, Any]]):
+        """Restore the reasoner's state from JSONL lines.
 
-        Reconstructs the conversation history and message count from previously
-        serialized state. Used by applications to restore reasoner state after
-        restarts or for debugging purposes.
+        Reconstructs the conversation history by concatenating messages from
+        all entries. Uses the processed count from the last entry.
 
         Args:
-            state: Dictionary containing serialized state from
-                [`get_serialized()`][group_sense.reasoner.default.DefaultGroupReasoner.get_serialized].
-                Must include 'agent' (conversation history) and 'processed'
-                (message count) keys.
+            lines: List of entries, each containing 'messages' (conversation
+                messages) and 'processed' (cumulative message count).
         """
-        self._history = ModelMessagesTypeAdapter.validate_python(state["agent"])
-        self._processed = state["processed"]
+        if not lines:
+            return
+        all_messages: list[Any] = []
+        for line in lines:
+            all_messages.extend(line["messages"])
+        self._history = ModelMessagesTypeAdapter.validate_python(all_messages)
+        self._processed = lines[-1]["processed"]
+        self._new_messages = []
 
 
 class DefaultGroupReasonerFactory(GroupReasonerFactory):
