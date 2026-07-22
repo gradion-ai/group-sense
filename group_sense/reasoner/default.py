@@ -47,7 +47,7 @@ class DefaultGroupReasoner(GroupReasoner):
         Args:
             system_prompt: System prompt that defines the reasoner's behavior and
                 decision-making criteria. Should not contain an {owner} placeholder.
-            model: Optional AI model to use. Defaults to "google-gla:gemini-3-flash-preview".
+            model: Optional AI model to use. Defaults to "google-gla:gemini-3.6-flash".
                 Can be a model name string or a pydantic-ai Model instance.
             model_settings: Optional model-specific settings. Defaults to
                 GoogleModelSettings with thinking enabled.
@@ -59,7 +59,7 @@ class DefaultGroupReasoner(GroupReasoner):
         self._agent = Agent(
             system_prompt=system_prompt,
             output_type=NativeOutput(Response),
-            model=model or "google-gla:gemini-3-flash-preview",
+            model=model or "google-gla:gemini-3.6-flash",
             model_settings=model_settings
             or GoogleModelSettings(
                 google_thinking_config={
