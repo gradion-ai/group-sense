@@ -1158,7 +1158,7 @@ docs = [
 [package.metadata]
 requires-dist = [
     { name = "google-genai", specifier = ">=1.56.0" },
-    { name = "pydantic-ai", specifier = ">=1.36.0" },
+    { name = "pydantic-ai", specifier = ">=1.36.0,<2" },
 ]
 
 [package.metadata.requires-dev]

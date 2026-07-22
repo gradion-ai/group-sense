@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 async def main():
-    template_path = Path("examples", "prompts", "default" "fact_check.md")
+    template_path = Path("examples", "prompts", "default", "fact_check.md")
     reasoner = DefaultGroupReasoner(system_prompt=template_path.read_text())
 
     message_1 = Message(content="The meeting is tomorrow at 2pm.", sender="user1")
